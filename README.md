@@ -9,7 +9,6 @@
 
 Projeto acadêmico desenvolvido em Python com o objetivo de simular um sistema bancário, permitindo operações essenciais como cadastro de conta, consulta de saldo, crédito, débito e transferência. O sistema foi planejado com separação em camadas, buscando melhor organização do código e reaproveitamento de componentes.
 
-🔗 **[Repositorio do projeto](https://github.com/luan-sampaio/banking-system-lim-dim0517#)**
 
 ---
 
