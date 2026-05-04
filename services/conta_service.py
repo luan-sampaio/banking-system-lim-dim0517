@@ -17,3 +17,13 @@ class ContaService:
         self.conta_repository.salvar_contas(conta)
         return conta
         
+    def consultar_saldo(self, numero):
+        if not numero.isdigit():
+            raise ValueError("Valor não númerico ou negativo!")
+                
+        conta = self.conta_repository.buscar_conta(numero)
+        
+        if conta is None:
+            raise ValueError("Não existe conta cadastrada com este número!")
+        
+        return conta.saldo

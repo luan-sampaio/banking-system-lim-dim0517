@@ -11,3 +11,12 @@ class ContaController:
         except ValueError as erro:
             return f"\n         Erro: {erro}"
     
+
+    def consultar_saldo(self):
+        numero = input("         Numero da conta: ")
+        
+        try:
+            saldo = self.conta_service.consultar_saldo(numero)
+            return f"         Saldo de {numero}: {saldo}"
+        except ValueError as erro:
+            return f"\n         Erro: {erro}"
