@@ -27,6 +27,8 @@ def main():
             print(controller.cadastrar_conta())
         elif opcao == "2":
             print(controller.consultar_saldo())
+        elif opcao == "3":
+            print(controller.creditar())
         elif opcao == "6":
             break
         else:
