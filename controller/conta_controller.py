@@ -17,6 +17,21 @@ class ContaController:
         
         try:
             saldo = self.conta_service.consultar_saldo(numero)
-            return f"         Saldo de {numero}: {saldo}"
+            return f"         Saldo de {numero}: {saldo:.2f}"
+        except ValueError as erro:
+            return f"\n         Erro: {erro}"
+
+
+    def creditar(self):
+        numero = input("         Numero da conta: ")
+
+        try:
+            self.conta_service.validar_conta_ativa(numero)
+
+            valor = input("         Valor do depósito: ")
+
+            saldo = self.conta_service.creditar(numero, valor)
+            return f"         Saldo de {numero}: {saldo:.2f}"
+
         except ValueError as erro:
             return f"\n         Erro: {erro}"
