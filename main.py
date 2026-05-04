@@ -29,6 +29,8 @@ def main():
             print(controller.consultar_saldo())
         elif opcao == "3":
             print(controller.creditar())
+        elif opcao == "4":
+            print(controller.debitar())
         elif opcao == "6":
             break
         else:

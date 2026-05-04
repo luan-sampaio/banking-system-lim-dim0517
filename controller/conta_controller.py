@@ -35,3 +35,18 @@ class ContaController:
 
         except ValueError as erro:
             return f"\n         Erro: {erro}"
+        
+
+    def debitar(self):
+        numero = input("         Numero da conta: ")
+
+        try:
+            self.conta_service.validar_conta_ativa(numero)
+
+            valor = input("         Valor da retirada: ")
+
+            saldo = self.conta_service.debitar(numero, valor)
+            return f"         Saldo de {numero}: {saldo:.2f}"
+
+        except ValueError as erro:
+            return f"\n         Erro: {erro}"
