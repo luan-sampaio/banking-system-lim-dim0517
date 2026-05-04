@@ -23,8 +23,10 @@ def main():
         
         opcao = input("\n         Escolha uma opção: ") 
         
-        if opcao == "1"       :
+        if opcao == "1":
             print(controller.cadastrar_conta())
+        elif opcao == "2":
+            print(controller.consultar_saldo())
         elif opcao == "6":
             break
         else:
