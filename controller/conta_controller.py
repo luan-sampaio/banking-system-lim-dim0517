@@ -50,3 +50,19 @@ class ContaController:
 
         except ValueError as erro:
             return f"\n         Erro: {erro}"
+
+    def transferir(self):
+        numero_origem = input("         Numero da conta de origem: ")
+        numero_destino = input("         Numero da conta de destino: ")
+        valor = input("         Valor da transferência: ")
+
+        try:
+            self.conta_service.transferir(numero_origem, numero_destino, valor)
+            
+            saldo_origem = self.conta_service.consultar_saldo(numero_origem)
+            saldo_destino = self.conta_service.consultar_saldo(numero_destino)
+            
+            return f"         \nSaldo da conta de origem {numero_origem}: {saldo_origem:.2f}\n         Saldo da conta de destino {numero_destino}: {saldo_destino:.2f}"
+
+        except ValueError as erro:
+            return f"\n         Erro: {erro}"

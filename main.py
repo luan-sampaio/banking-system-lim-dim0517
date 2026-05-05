@@ -31,6 +31,8 @@ def main():
             print(controller.creditar())
         elif opcao == "4":
             print(controller.debitar())
+        elif opcao == "5":
+            print(controller.transferir())
         elif opcao == "6":
             break
         else:
