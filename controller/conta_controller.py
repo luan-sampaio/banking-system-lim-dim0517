@@ -62,7 +62,7 @@ class ContaController:
             saldo_origem = self.conta_service.consultar_saldo(numero_origem)
             saldo_destino = self.conta_service.consultar_saldo(numero_destino)
             
-            return f"         \nSaldo da conta de origem {numero_origem}: {saldo_origem:.2f}\n         Saldo da conta de destino {numero_destino}: {saldo_destino:.2f}"
+            return f"\n         Saldo da conta de origem {numero_origem}: {saldo_origem:.2f}\n         Saldo da conta de destino {numero_destino}: {saldo_destino:.2f}"
 
         except ValueError as erro:
             return f"\n         Erro: {erro}"

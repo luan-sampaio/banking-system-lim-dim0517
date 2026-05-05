@@ -80,9 +80,6 @@ class ContaService:
         
         if valor_decimal <= 0:
             raise ValueError("Valor de depósito deve ser maior que zero.")
-        
-        if valor_decimal > conta.saldo:
-            raise ValueError("Saldo insuficiente para esta operação.")
 
         conta.saldo -= valor_decimal
         self.conta_repository.salvar_contas(conta)
@@ -105,9 +102,6 @@ class ContaService:
         
         if valor_decimal <= 0:
             raise ValueError("Valor de transferência deve ser maior que zero.")
-        
-        if valor_decimal > conta_origem.saldo:
-            raise ValueError("Saldo insuficiente para esta operação.")
         
         conta_origem.saldo -= valor_decimal
         conta_destino.saldo += valor_decimal
