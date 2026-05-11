@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation
 
 from models.conta import Conta
+from models.conta_bonus import ContaBonus
 
 class ContaService:
     def __init__(self, conta_repository):
@@ -16,6 +17,17 @@ class ContaService:
 
         
         conta = Conta(numero)
+        self.conta_repository.salvar_contas(conta)
+        return conta
+
+    def cadastrar_conta_bonus(self, numero):
+        if not numero.isdigit():
+            raise ValueError("Valor não númerico ou negativo!")
+
+        if self.conta_repository.buscar_conta(numero):
+            raise ValueError("Conta Cadastrada com Esse Número!")
+
+        conta = ContaBonus(numero)
         self.conta_repository.salvar_contas(conta)
         return conta
         
@@ -60,6 +72,10 @@ class ContaService:
             raise ValueError("Valor de depósito deve ser maior que zero.")
         
         conta.saldo += valor_decimal
+
+        if isinstance(conta, ContaBonus):
+            conta.pontuacao += int(valor_decimal // Decimal("100"))
+
         self.conta_repository.salvar_contas(conta)
         return conta.saldo
     
@@ -111,6 +127,9 @@ class ContaService:
         
         conta_origem.saldo -= valor_decimal
         conta_destino.saldo += valor_decimal
+
+        if isinstance(conta_destino, ContaBonus):
+            conta_destino.pontuacao += int(valor_decimal // Decimal("200"))
         
         self.conta_repository.salvar_contas(conta_origem)
         self.conta_repository.salvar_contas(conta_destino)
