@@ -2,6 +2,7 @@ from decimal import Decimal, InvalidOperation
 
 from models.conta import Conta
 from models.conta_bonus import ContaBonus
+from models.conta_poupanca import ContaPoupanca
 
 class ContaService:
     def __init__(self, conta_repository):
@@ -28,6 +29,17 @@ class ContaService:
             raise ValueError("Conta Cadastrada com Esse Número!")
 
         conta = ContaBonus(numero)
+        self.conta_repository.salvar_contas(conta)
+        return conta
+
+    def cadastrar_conta_poupanca(self, numero):
+        if not numero.isdigit():
+            raise ValueError("Valor não númerico ou negativo!")
+
+        if self.conta_repository.buscar_conta(numero):
+            raise ValueError("Conta Cadastrada com Esse Número!")
+
+        conta = ContaPoupanca(numero)
         self.conta_repository.salvar_contas(conta)
         return conta
         
