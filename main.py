@@ -24,7 +24,14 @@ def main():
         opcao = input("\n         Escolha uma opção: ") 
         
         if opcao == "1":
-            print(controller.cadastrar_conta())
+            opcao_conta = tela_contas()
+
+            if opcao_conta == "A":
+                print(controller.cadastrar_conta())
+            elif opcao_conta == "B":
+                print(controller.cadastrar_conta_bonus())
+            else:
+                print("\n         Opção Inválida!")
         elif opcao == "2":
             print(controller.consultar_saldo())
         elif opcao == "3":
@@ -39,5 +46,16 @@ def main():
             print("\n         Opção Inválida!")
             
         input("\n     [Pressione Enter para Retornar ao menu]")
+
+def tela_contas():
+    os.system("cls" if os.name == "nt" else "clear")
+    print("========== Banking Sytem L.I.M. ==========\n")
+    print("         Escolha o tipo de conta: \n")
+    print("         [A] Conta Normal")
+    print("         [B] Conta Bônus")
+    print("         [C] Conta Poupança")
+    
+
+    return input("\n         Escolha uma opção: ").upper()
 
 main()
