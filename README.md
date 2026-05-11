@@ -25,11 +25,44 @@ Projeto acadêmico desenvolvido em Python com o objetivo de simular um sistema b
 ## 🛠️ Linguagem e Stack de Desenvolvimento
 
 - **Python** - Linguagem principal do projeto
-- **Programacao Orientada a Objetos (POO)** - Modelagem das entidades e regras de negócio
+- **Programação Orientada a Objetos (POO)** - Modelagem das entidades e regras de negócio
 - **Arquitetura em Camadas** - Separação entre interface e camada de negócio
 - **Git e GitHub** - Versionamento e gerenciamento do repositório
 - **Console** - Interação com o usuário via terminal
 
+
+---
+
+## ▶️ Como Executar o Sistema
+
+### Pré-requisitos
+
+- Ter o **Python 3** instalado na máquina
+- Ter o **Git** instalado, caso deseje clonar o repositório
+
+### Passo a passo
+
+1. Clone o repositório:
+
+```bash
+git clone https://github.com/luan-sampaio/banking-system-lim-dim0517.git
+```
+
+2. Acesse a pasta do projeto:
+
+```bash
+cd banking-system-lim-dim0517
+```
+
+3. Execute o sistema:
+
+```bash
+python main.py
+```
+
+> Em alguns ambientes, pode ser necessário usar `python3 main.py`.
+
+Após a execução, o sistema exibirá um menu no terminal com as opções de cadastro de conta, consulta de saldo, crédito, débito e transferência.
 
 ---
 
