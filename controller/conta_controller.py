@@ -1,6 +1,7 @@
 class ContaController:
-    def __init__(self, conta_service):
+    def __init__(self, conta_service, conta_poupanca_service):
         self.conta_service = conta_service
+        self.conta_poupanca_service = conta_poupanca_service
         
     def cadastrar_conta(self):
         numero = input("         Numero da conta: ")
@@ -17,6 +18,15 @@ class ContaController:
         try:
             conta = self.conta_service.cadastrar_conta_bonus(numero)
             return f"         Conta Bônus {conta.numero} Cadastrada com Sucesso! Pontuação: {conta.pontuacao}"
+        except ValueError as erro:
+            return f"\n         Erro: {erro}"
+
+    def cadastrar_conta_poupanca(self):
+        numero = input("         Numero da conta poupança: ")
+
+        try:
+            conta = self.conta_service.cadastrar_conta_poupanca(numero)
+            return f"         Conta Poupança {conta.numero} Cadastrada com Sucesso!"
         except ValueError as erro:
             return f"\n         Erro: {erro}"
     
@@ -85,5 +95,14 @@ class ContaController:
 
             return mensagem
 
+        except ValueError as erro:
+            return f"\n         Erro: {erro}"
+
+    def render_juros(self):
+        taxa = input("         Taxa de juros: ")
+
+        try:
+            quantidade = self.conta_poupanca_service.render_juros_todas(taxa)
+            return f"         Juros aplicados em {quantidade} conta(s) poupança."
         except ValueError as erro:
             return f"\n         Erro: {erro}"
