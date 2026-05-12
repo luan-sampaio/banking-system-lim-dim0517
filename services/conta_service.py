@@ -56,6 +56,9 @@ class ContaService:
         except InvalidOperation:
             raise ValueError("Formato monetário inválido. Digite um número válido (ex: 50.00).")
     
+        if valor_decimal <= 0:
+            raise ValueError("Valor de depósito deve ser maior que zero.")
+        
         conta.saldo += valor_decimal
         self.conta_repository.salvar_contas(conta)
         return conta.saldo
@@ -74,6 +77,9 @@ class ContaService:
             valor_decimal = Decimal(valor_higienizado)
         except InvalidOperation:
             raise ValueError("Formato monetário inválido. Digite um número válido (ex: 50.00).")
+        
+        if valor_decimal <= 0:
+            raise ValueError("Valor de depósito deve ser maior que zero.")
         
         if valor_decimal > conta.saldo:
             raise ValueError("Saldo insuficiente para esta operação.")
@@ -96,7 +102,10 @@ class ContaService:
             valor_decimal = Decimal(valor_higienizado)
         except InvalidOperation:
             raise ValueError("Formato inválido. Digite um número válido.")
-
+        
+        if valor_decimal <= 0:
+            raise ValueError("Valor de transferência deve ser maior que zero.")
+        
         if valor_decimal > conta_origem.saldo:
             raise ValueError("Saldo insuficiente para esta operação.")
         
