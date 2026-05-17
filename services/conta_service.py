@@ -1,4 +1,5 @@
 from decimal import Decimal, InvalidOperation
+from models.conta_poupanca import ContaPoupanca
 
 from models.conta import Conta
 from models.conta_bonus import ContaBonus
@@ -32,15 +33,25 @@ class ContaService:
         self.conta_repository.salvar_contas(conta)
         return conta
 
-    def cadastrar_conta_poupanca(self, numero):
+    def cadastrar_conta_poupanca(self, numero, saldo_inicial_str):
         if not numero.isdigit():
-            raise ValueError("Valor não númerico ou negativo!")
+            raise ValueError("O número da conta deve conter apenas dígitos!")
 
-        if self.conta_repository.buscar_conta(numero):
-            raise ValueError("Conta Cadastrada com Esse Número!")
+        if self.conta_repository.buscar_conta(numero) is not None:
+            raise ValueError("Já existe uma conta cadastrada com este número!")
 
-        conta = ContaPoupanca(numero)
+        saldo_higienizado = saldo_inicial_str.replace(',', '.')
+        try:
+            saldo_decimal = Decimal(saldo_higienizado)
+        except InvalidOperation:
+            raise ValueError("Formato monetário inválido. Digite um número válido (ex: 50.00).")
+
+        if saldo_decimal < Decimal('0'):
+            raise ValueError("O saldo inicial não pode ser negativo.")
+
+        conta = ContaPoupanca(numero, saldo_decimal)
         self.conta_repository.salvar_contas(conta)
+        
         return conta
         
     def consultar_saldo(self, numero):
