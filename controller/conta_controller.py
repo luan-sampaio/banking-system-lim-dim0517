@@ -23,13 +23,14 @@ class ContaController:
 
     def cadastrar_conta_poupanca(self):
         numero = input("         Numero da conta poupança: ")
+        saldo_inicial = input("         Saldo inicial (R$): ")
 
         try:
-            conta = self.conta_service.cadastrar_conta_poupanca(numero)
-            return f"         Conta Poupança {conta.numero} Cadastrada com Sucesso!"
+            conta = self.conta_service.cadastrar_conta_poupanca(numero, saldo_inicial)
+            return f"         Conta Poupança {conta.numero} Cadastrada com Sucesso! Saldo Inicial: R$ {conta.saldo:.2f}"
         except ValueError as erro:
             return f"\n         Erro: {erro}"
-    
+
 
     def consultar_saldo(self):
         numero = input("         Numero da conta: ")
