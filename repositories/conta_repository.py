@@ -7,3 +7,6 @@ class ContaRepository:
 
     def buscar_conta(self, numero):
         return self.contas.get(numero)
+
+    def listar_contas(self):
+        return self.contas.values()
