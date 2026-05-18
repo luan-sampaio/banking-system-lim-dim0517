@@ -93,7 +93,7 @@ class ContaService:
         conta.saldo += valor_decimal
 
         if isinstance(conta, ContaBonus):
-            conta.pontuacao += int(valor_decimal // Decimal("100"))
+            conta.pontuacao += int(valor_decimal // Decimal("150"))
 
         self.conta_repository.salvar_contas(conta)
         return conta.saldo
