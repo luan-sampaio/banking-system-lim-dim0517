@@ -5,9 +5,10 @@ class ContaController:
         
     def cadastrar_conta(self):
         numero = input("         Numero da conta: ")
+        saldo_inicial = input("         Saldo inicial: ")
         
         try:
-            conta = self.conta_service.cadastrar_conta(numero)
+            conta = self.conta_service.cadastrar_conta(numero, saldo_inicial)
             return f"         Conta {conta.numero} Cadastrada com Sucesso!"
         except ValueError as erro:
             return f"\n         Erro: {erro}"

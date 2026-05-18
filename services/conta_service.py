@@ -8,16 +8,23 @@ class ContaService:
     def __init__(self, conta_repository):
         self.conta_repository = conta_repository
         
-    def cadastrar_conta(self, numero):    
+    def cadastrar_conta(self, numero, saldo_inicial="0"):
         if not numero.isdigit():
             raise ValueError("Valor não númerico ou negativo!")
-                
         
+        saldo_inicial_higienizado = saldo_inicial.replace(",", ".")
+        try:
+            saldo_inicial_decimal = Decimal(saldo_inicial_higienizado)
+        except InvalidOperation:
+            raise ValueError("Formato monetário inválido para saldo inicial.")
+
+        if saldo_inicial_decimal < Decimal("0"):
+            raise ValueError("Saldo inicial não pode ser negativo.")
+                
         if self.conta_repository.buscar_conta(numero):
             raise ValueError("Conta Cadastrada com Esse Número!")
 
-        
-        conta = Conta(numero)
+        conta = Conta(numero, saldo_inicial_decimal)
         self.conta_repository.salvar_contas(conta)
         return conta
 
