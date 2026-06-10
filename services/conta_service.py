@@ -165,3 +165,29 @@ class ContaService:
         self.conta_repository.salvar_contas(conta_destino)
         
         return conta_destino.saldo
+
+    def consultar_dados(self, numero):
+        if not numero.isdigit():
+            raise ValueError("Valor não númerico ou negativo!")
+                
+        conta = self.conta_repository.buscar_conta(numero)
+        
+        if conta is None:
+            raise ValueError("Não existe conta cadastrada com este número!")
+        
+        dados_conta = {}
+        
+        if isinstance(conta, ContaBonus):
+            dados_conta['tipo'] = 'Conta Bônus'
+            dados_conta['pontuacao'] = conta.pontuacao
+        elif isinstance(conta, ContaPoupanca):
+            dados_conta['tipo'] = 'Conta Poupança'
+            dados_conta['pontuacao'] = 'Não possui'
+        else:
+            dados_conta['tipo'] = 'Conta Normal'
+            dados_conta['pontuacao'] = 'Não possui'
+        
+        dados_conta['numero'] = numero
+        dados_conta['saldo'] = conta.saldo
+        
+        return dados_conta
