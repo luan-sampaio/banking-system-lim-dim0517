@@ -22,7 +22,8 @@ def main():
         print("         [4] Realizar Débito")
         print("         [5] Realizar Transferência")
         print("         [6] Render Juros")
-        print("         [7] Sair")
+        print("         [7] Consultar dados")
+        print("         [8] Sair")
         
         opcao = input("\n         Escolha uma opção: ") 
         
@@ -48,6 +49,8 @@ def main():
         elif opcao == "6":
             print(controller.render_juros())
         elif opcao == "7":
+            print(controller.consultar_dados())
+        elif opcao == "8":
             break
         else:
             print("\n         Opção Inválida!")

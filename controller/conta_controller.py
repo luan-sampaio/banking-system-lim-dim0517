@@ -1,3 +1,6 @@
+import os
+
+
 class ContaController:
     def __init__(self, conta_service, conta_poupanca_service):
         self.conta_service = conta_service
@@ -106,5 +109,24 @@ class ContaController:
         try:
             quantidade = self.conta_poupanca_service.render_juros_todas(taxa)
             return f"         Juros aplicados em {quantidade} conta(s) poupança."
+        except ValueError as erro:
+            return f"\n         Erro: {erro}"
+    
+    def consultar_dados(self):
+        numero = input("         Numero da conta: ")
+        
+        try:
+            dados_conta = self.conta_service.consultar_dados(numero)
+            os.system("cls" if os.name == "nt" else "clear")
+            print("========== Banking Sytem L.I.M. ==========\n")
+            
+            return (
+                "         Dados da conta: \n\n"
+                f"         Tipo: {dados_conta['tipo']}\n"
+                f"         Número: {dados_conta['numero']}\n"
+                f"         Saldo: {dados_conta['saldo']:.2f}\n"
+                f"         Bônus: {dados_conta['pontuacao']}\n"
+                
+            )
         except ValueError as erro:
             return f"\n         Erro: {erro}"
