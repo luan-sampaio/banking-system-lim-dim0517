@@ -11,7 +11,7 @@ class ContaService:
 
     def _validar_numero(self, numero):
         if not numero.isdigit():
-            raise ValueError("Valor não númerico ou negativo!")
+            raise ValueError("Valor não numérico ou negativo!")
 
     def _validar_nao_existente(self, numero):
         if self.conta_repository.buscar_conta(numero):
@@ -35,8 +35,10 @@ class ContaService:
     def cadastrar_conta(self, numero, saldo_inicial=Decimal("0")):
         self._validar_numero(numero)
         self._validar_nao_existente(numero)
-        self._validar_nao_negativo(saldo_inicial, "Saldo inicial não pode ser negativo.")
-        conta = Conta(numero, saldo_inicial)
+        self._validar_numero(saldo_inicial)
+        saldo_Decimal = Decimal(saldo_inicial)
+        self._validar_nao_negativo(saldo_Decimal, "Saldo inicial não pode ser negativo.")
+        conta = Conta(numero, saldo_Decimal)
         self.conta_repository.salvar_contas(conta)
         return conta
 
@@ -50,8 +52,10 @@ class ContaService:
     def cadastrar_conta_poupanca(self, numero, saldo_inicial):
         self._validar_numero(numero)
         self._validar_nao_existente(numero)
-        self._validar_nao_negativo(saldo_inicial, "O saldo inicial não pode ser negativo.")
-        conta = ContaPoupanca(numero, saldo_inicial)
+        self._validar_numero(saldo_inicial)
+        saldo_Decimal = Decimal(saldo_inicial)
+        self._validar_nao_negativo(saldo_Decimal, "O saldo inicial não pode ser negativo.")
+        conta = ContaPoupanca(numero, saldo_Decimal)
         self.conta_repository.salvar_contas(conta)
         return conta
 
@@ -104,5 +108,5 @@ class ContaService:
             dados_conta['tipo'] = 'Conta Normal'
             dados_conta['pontuacao'] = 'Não possui'
         dados_conta['numero'] = numero
-        dados_conta['saldo'] = conta.saldo
+        dados_conta['saldo'] = float(f"{conta.saldo:.2f}")
         return dados_conta

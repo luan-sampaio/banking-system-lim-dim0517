@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi import HTTPException
 
 from repositories.conta_repository import ContaRepository
 from services.conta_service import ContaService
@@ -22,11 +23,21 @@ class CriarContaRequest(BaseModel):
 
 @app.post("/banco/contas/")
 def criar_conta(body: CriarContaRequest):
-    saldo = Decimal(body.saldo_inicial.replace(",", "."))
+    saldo = body.saldo_inicial.replace(",", ".")
     if body.tipo == "bonus":
-        conta = conta_service.cadastrar_conta_bonus(body.numero)
+        try:
+            conta = conta_service.cadastrar_conta_bonus(body.numero)    
+        except ValueError as erro:
+            raise HTTPException(status_code=400, detail=str(erro))
     elif body.tipo == "poupanca":
-        conta = conta_service.cadastrar_conta_poupanca(body.numero, saldo)
+        try:
+            conta = conta_service.cadastrar_conta_poupanca(body.numero, saldo)
+        except ValueError as erro:
+            raise HTTPException(status_code=400, detail=str(erro))
     else:
-        conta = conta_service.cadastrar_conta(body.numero, saldo)
+        try:
+            conta = conta_service.cadastrar_conta(body.numero, saldo)
+        except ValueError as erro:
+            raise HTTPException(status_code=400, detail=str(erro))
     return {"numero": conta.numero, "saldo": float(conta.saldo), "mensagem": "Conta cadastrada com sucesso"}
+
