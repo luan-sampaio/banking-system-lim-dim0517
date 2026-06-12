@@ -1,182 +1,99 @@
-from decimal import Decimal, InvalidOperation
-from models.conta_poupanca import ContaPoupanca
+from decimal import Decimal
 
 from models.conta import Conta
 from models.conta_bonus import ContaBonus
 from models.conta_poupanca import ContaPoupanca
 
+
 class ContaService:
     def __init__(self, conta_repository):
         self.conta_repository = conta_repository
-        
-    def cadastrar_conta(self, numero, saldo_inicial="0"):
+
+    def _validar_numero(self, numero):
         if not numero.isdigit():
             raise ValueError("Valor não númerico ou negativo!")
-        
-        saldo_inicial_higienizado = saldo_inicial.replace(",", ".")
-        try:
-            saldo_inicial_decimal = Decimal(saldo_inicial_higienizado)
-        except InvalidOperation:
-            raise ValueError("Formato monetário inválido para saldo inicial.")
 
-        if saldo_inicial_decimal < Decimal("0"):
-            raise ValueError("Saldo inicial não pode ser negativo.")
-                
+    def _validar_nao_existente(self, numero):
         if self.conta_repository.buscar_conta(numero):
-            raise ValueError("Conta Cadastrada com Esse Número!")
+            raise ValueError("Já existe uma conta cadastrada com este número!")
 
-        conta = Conta(numero, saldo_inicial_decimal)
+    def _validar_valor_positivo(self, valor, mensagem="Valor deve ser maior que zero."):
+        if valor <= 0:
+            raise ValueError(mensagem)
+
+    def _validar_nao_negativo(self, valor, mensagem="Valor não pode ser negativo."):
+        if valor < 0:
+            raise ValueError(mensagem)
+
+    def buscar_conta(self, numero):
+        self._validar_numero(numero)
+        conta = self.conta_repository.buscar_conta(numero)
+        if conta is None:
+            raise ValueError("Não existe conta cadastrada com este número!")
+        return conta
+
+    def cadastrar_conta(self, numero, saldo_inicial=Decimal("0")):
+        self._validar_numero(numero)
+        self._validar_nao_existente(numero)
+        self._validar_nao_negativo(saldo_inicial, "Saldo inicial não pode ser negativo.")
+        conta = Conta(numero, saldo_inicial)
         self.conta_repository.salvar_contas(conta)
         return conta
 
     def cadastrar_conta_bonus(self, numero):
-        if not numero.isdigit():
-            raise ValueError("Valor não númerico ou negativo!")
-
-        if self.conta_repository.buscar_conta(numero):
-            raise ValueError("Conta Cadastrada com Esse Número!")
-
+        self._validar_numero(numero)
+        self._validar_nao_existente(numero)
         conta = ContaBonus(numero)
         self.conta_repository.salvar_contas(conta)
         return conta
 
-    def cadastrar_conta_poupanca(self, numero, saldo_inicial_str):
-        if not numero.isdigit():
-            raise ValueError("O número da conta deve conter apenas dígitos!")
-
-        if self.conta_repository.buscar_conta(numero) is not None:
-            raise ValueError("Já existe uma conta cadastrada com este número!")
-
-        saldo_higienizado = saldo_inicial_str.replace(',', '.')
-        try:
-            saldo_decimal = Decimal(saldo_higienizado)
-        except InvalidOperation:
-            raise ValueError("Formato monetário inválido. Digite um número válido (ex: 50.00).")
-
-        if saldo_decimal < Decimal('0'):
-            raise ValueError("O saldo inicial não pode ser negativo.")
-
-        conta = ContaPoupanca(numero, saldo_decimal)
+    def cadastrar_conta_poupanca(self, numero, saldo_inicial):
+        self._validar_numero(numero)
+        self._validar_nao_existente(numero)
+        self._validar_nao_negativo(saldo_inicial, "O saldo inicial não pode ser negativo.")
+        conta = ContaPoupanca(numero, saldo_inicial)
         self.conta_repository.salvar_contas(conta)
-        
         return conta
-        
-    def consultar_saldo(self, numero):
-        if not numero.isdigit():
-            raise ValueError("Valor não númerico ou negativo!")
-                
-        conta = self.conta_repository.buscar_conta(numero)
-        
-        if conta is None:
-            raise ValueError("Não existe conta cadastrada com este número!")
-        
-        return conta.saldo
-    
-    def validar_conta_ativa(self, numero):
-        if not numero.isdigit():
-            raise ValueError("Valor não númerico ou negativo!")
-                
-        conta = self.conta_repository.buscar_conta(numero)
 
-        if conta is None:
-            raise ValueError("Não existe conta cadastrada com este número!")
-        
-        return conta
+    def consultar_saldo(self, numero):
+        conta = self.buscar_conta(numero)
+        return conta.saldo
 
     def creditar(self, numero, valor):
-        if not numero.isdigit():
-            raise ValueError("Valor não númerico ou negativo!")
-        
-        conta = self.conta_repository.buscar_conta(numero)
-
-        if conta is None:
-            raise ValueError("Não existe conta cadastrada com este número!")
-        
-        valor_higienizado = valor.replace(",", ".")
-        try:
-            valor_decimal = Decimal(valor_higienizado)
-        except InvalidOperation:
-            raise ValueError("Formato monetário inválido. Digite um número válido (ex: 50.00).")
-    
-        if valor_decimal <= 0:
-            raise ValueError("Valor de depósito deve ser maior que zero.")
-        
-        conta.saldo += valor_decimal
-
+        self._validar_valor_positivo(valor, "Valor de depósito deve ser maior que zero.")
+        conta = self.buscar_conta(numero)
+        conta.saldo += valor
         if isinstance(conta, ContaBonus):
-            conta.pontuacao += int(valor_decimal // Decimal("150"))
-
+            conta.pontuacao += int(valor // Decimal("150"))
         self.conta_repository.salvar_contas(conta)
         return conta.saldo
-    
+
     def debitar(self, numero, valor):
-        if not numero.isdigit():
-            raise ValueError("Valor não númerico ou negativo!")
-        
-        conta = self.conta_repository.buscar_conta(numero)
-
-        if conta is None:
-            raise ValueError("Não existe conta cadastrada com este número!")
-        
-        valor_higienizado = valor.replace(",", ".")
-        try:
-            valor_decimal = Decimal(valor_higienizado)
-        except InvalidOperation:
-            raise ValueError("Formato monetário inválido. Digite um número válido (ex: 50.00).")
-        
-        if valor_decimal <= 0:
-            raise ValueError("Valor de depósito deve ser maior que zero.")
-        
-        if valor_decimal > conta.saldo:
+        self._validar_valor_positivo(valor, "Valor de depósito deve ser maior que zero.")
+        conta = self.buscar_conta(numero)
+        if valor > conta.saldo:
             raise ValueError("Saldo insuficiente para esta operação.")
-
-        conta.saldo -= valor_decimal
+        conta.saldo -= valor
         self.conta_repository.salvar_contas(conta)
         return conta.saldo
 
     def transferir(self, numero_origem, numero_destino, valor):
-        conta_origem = self.conta_repository.buscar_conta(numero_origem)
-        conta_destino = self.conta_repository.buscar_conta(numero_destino)
-
-        if conta_origem is None:
-            raise ValueError("Não existe conta cadastrada com o número da conta de origem!")
-        if conta_destino is None:
-            raise ValueError("Não existe conta cadastrada com o número da conta de destino!")
-
-        valor_higienizado = valor.replace(",", ".")
-        try:
-            valor_decimal = Decimal(valor_higienizado)
-        except InvalidOperation:
-            raise ValueError("Formato inválido. Digite um número válido.")
-        
-        if valor_decimal <= 0:
-            raise ValueError("Valor de transferência deve ser maior que zero.")
-        
-        if valor_decimal > conta_origem.saldo:
+        self._validar_valor_positivo(valor, "Valor de transferência deve ser maior que zero.")
+        conta_origem = self.buscar_conta(numero_origem)
+        conta_destino = self.buscar_conta(numero_destino)
+        if valor > conta_origem.saldo:
             raise ValueError("Saldo insuficiente para esta operação.")
-        
-        conta_origem.saldo -= valor_decimal
-        conta_destino.saldo += valor_decimal
-
+        conta_origem.saldo -= valor
+        conta_destino.saldo += valor
         if isinstance(conta_destino, ContaBonus):
-            conta_destino.pontuacao += int(valor_decimal // Decimal("200"))
-        
+            conta_destino.pontuacao += int(valor // Decimal("200"))
         self.conta_repository.salvar_contas(conta_origem)
         self.conta_repository.salvar_contas(conta_destino)
-        
         return conta_destino.saldo
 
     def consultar_dados(self, numero):
-        if not numero.isdigit():
-            raise ValueError("Valor não númerico ou negativo!")
-                
-        conta = self.conta_repository.buscar_conta(numero)
-        
-        if conta is None:
-            raise ValueError("Não existe conta cadastrada com este número!")
-        
+        conta = self.buscar_conta(numero)
         dados_conta = {}
-        
         if isinstance(conta, ContaBonus):
             dados_conta['tipo'] = 'Conta Bônus'
             dados_conta['pontuacao'] = conta.pontuacao
@@ -186,8 +103,6 @@ class ContaService:
         else:
             dados_conta['tipo'] = 'Conta Normal'
             dados_conta['pontuacao'] = 'Não possui'
-        
         dados_conta['numero'] = numero
         dados_conta['saldo'] = conta.saldo
-        
         return dados_conta
