@@ -41,3 +41,18 @@ def criar_conta(body: CriarContaRequest):
             raise HTTPException(status_code=400, detail=str(erro))
     return {"numero": conta.numero, "saldo": float(conta.saldo), "mensagem": "Conta cadastrada com sucesso"}
 
+@app.get("/banco/conta/{id}")
+def consultar_conta(id: str):
+    try:
+        dados_conta = conta_service.consultar_dados(id)
+        return dados_conta
+    except ValueError as erro:
+        raise HTTPException(status_code=404, detail=str(erro))
+
+@app.get("/banco/conta/{id}/saldo")
+def consultar_saldo(id: str):
+    try:
+        saldo_conta = conta_service.consultar_saldo(id)
+        return {"saldo": float(f"{saldo_conta:.2f}")}
+    except ValueError as erro:
+        raise HTTPException(status_code=404, detail=str(erro))
