@@ -75,10 +75,10 @@ class ContaService:
         return conta.saldo
 
     def debitar(self, numero, valor):
+        conta = self.buscar_conta(numero)
         self._validar_numero(valor, "O valor de saque deve ser um valor numérico válido e maior que zero.")
         valor_decimal = Decimal(valor)
         self._validar_valor_positivo(valor_decimal, "O valor de saque deve ser maior que zero.")
-        conta = self.buscar_conta(numero)
         if valor_decimal > conta.saldo:
             raise ValueError("Saldo insuficiente para esta operação.")
         conta.saldo -= valor_decimal

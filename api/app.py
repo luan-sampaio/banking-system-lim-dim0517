@@ -23,6 +23,9 @@ class CriarContaRequest(BaseModel):
 class CreditoRequest(BaseModel):
     valor: str
 
+class DebitoRequest(BaseModel):
+    valor: str
+
 
 @app.post("/banco/contas/")
 def criar_conta(body: CriarContaRequest):
@@ -69,6 +72,20 @@ def creditar_conta(id: str, body: CreditoRequest):
         
         return {
             "mensagem": "Crédito realizado com sucesso", 
+            "saldo": float(f"{saldo_atualizado:.2f}")
+        }
+    except ValueError as erro:
+        raise HTTPException(status_code=400, detail=str(erro))
+    
+@app.put("/banco/conta/{id}/debito")
+def debitar_conta(id: str, body: DebitoRequest):
+    try:
+        valor_str = body.valor.replace(",", ".")       
+
+        saldo_atualizado = conta_service.debitar(id, valor_str)
+        
+        return {
+            "mensagem": "Débito realizado com sucesso", 
             "saldo": float(f"{saldo_atualizado:.2f}")
         }
     except ValueError as erro:
