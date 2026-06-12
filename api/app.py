@@ -20,6 +20,9 @@ class CriarContaRequest(BaseModel):
     saldo_inicial: str = "0"
     tipo: str = "normal"
 
+class CreditoRequest(BaseModel):
+    valor: str
+
 
 @app.post("/banco/contas/")
 def criar_conta(body: CriarContaRequest):
@@ -56,3 +59,17 @@ def consultar_saldo(id: str):
         return {"saldo": float(f"{saldo_conta:.2f}")}
     except ValueError as erro:
         raise HTTPException(status_code=404, detail=str(erro))
+    
+@app.put("/banco/conta/{id}/credito")
+def creditar_conta(id: str, body: CreditoRequest):
+    try:
+        valor_str = body.valor.replace(",", ".")
+
+        saldo_atualizado = conta_service.creditar(id, valor_str)
+        
+        return {
+            "mensagem": "Crédito realizado com sucesso", 
+            "saldo": float(f"{saldo_atualizado:.2f}")
+        }
+    except ValueError as erro:
+        raise HTTPException(status_code=400, detail=str(erro))
