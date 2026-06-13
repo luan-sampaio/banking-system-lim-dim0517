@@ -1,8 +1,10 @@
+from dataclasses import Field
 from decimal import Decimal
 
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi import HTTPException
+from pydantic import BaseModel, Field
 
 from repositories.conta_repository import ContaRepository
 from services.conta_service import ContaService
@@ -26,6 +28,10 @@ class CreditoRequest(BaseModel):
 class DebitoRequest(BaseModel):
     valor: str
 
+class TransferenciaRequest(BaseModel):
+    conta_origem: str = Field(alias="from")
+    conta_destino: str = Field(alias="to")
+    valor: str
 
 @app.post("/banco/contas/")
 def criar_conta(body: CriarContaRequest):
@@ -87,6 +93,21 @@ def debitar_conta(id: str, body: DebitoRequest):
         return {
             "mensagem": "Débito realizado com sucesso", 
             "saldo": float(f"{saldo_atualizado:.2f}")
+        }
+    except ValueError as erro:
+        raise HTTPException(status_code=400, detail=str(erro))
+
+
+@app.put("/banco/conta/transferencia")
+def transferir_entre_contas(body: TransferenciaRequest):
+    try:
+        valor_str = str(body.valor).replace(",", ".")
+        
+        saldo_destino = conta_service.transferir(body.conta_origem, body.conta_destino, valor_str)
+        
+        return {
+            "mensagem": "Transferência realizada com sucesso", 
+            "saldo_conta_destino": float(f"{saldo_destino:.2f}")
         }
     except ValueError as erro:
         raise HTTPException(status_code=400, detail=str(erro))
