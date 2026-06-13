@@ -33,6 +33,9 @@ class TransferenciaRequest(BaseModel):
     conta_destino: str = Field(alias="to")
     valor: str
 
+class RendimentoRequest(BaseModel):
+    taxa: str
+
 @app.post("/banco/contas/")
 def criar_conta(body: CriarContaRequest):
     saldo = body.saldo_inicial.replace(",", ".")
@@ -108,6 +111,20 @@ def transferir_entre_contas(body: TransferenciaRequest):
         return {
             "mensagem": "Transferência realizada com sucesso", 
             "saldo_conta_destino": float(f"{saldo_destino:.2f}")
+        }
+    except ValueError as erro:
+        raise HTTPException(status_code=400, detail=str(erro))
+    
+@app.put("/banco/conta/rendimento")
+def aplicar_rendimento(body: RendimentoRequest):
+    try:
+        taxa_str = body.taxa.replace(",", ".")
+        
+        quantidade_contas = conta_poupanca_service.render_juros_todas(taxa_str)
+        
+        return {
+            "mensagem": "Rendimento aplicado com sucesso.",
+            "contas_atualizadas": quantidade_contas
         }
     except ValueError as erro:
         raise HTTPException(status_code=400, detail=str(erro))

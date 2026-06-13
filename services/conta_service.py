@@ -8,7 +8,16 @@ from models.conta_poupanca import ContaPoupanca
 class ContaService:
     def __init__(self, conta_repository):
         self.conta_repository = conta_repository
-
+        
+    def _validar_valor(self, numero, mensagem="valor não numérico, igual a zero ou negativo."):
+        try:
+            valor = float(numero)
+        except ValueError:
+            raise ValueError(mensagem)
+    
+        if valor <= 0:
+            raise ValueError(mensagem)
+        
     def _validar_numero(self, numero, mensagem="valor não numérico ou negativo."):
         if not numero.isdigit():
             raise ValueError(mensagem)
@@ -37,7 +46,7 @@ class ContaService:
     def cadastrar_conta(self, numero, saldo_inicial=Decimal("0")):
         self._validar_numero(numero, "O número da conta deve conter apenas dígitos.")
         self._validar_nao_existente(numero)
-        self._validar_numero(saldo_inicial, "O saldo inicial deve ser um valor numérico válido.")
+        self._validar_valor(saldo_inicial, "O saldo inicial deve ser um valor numérico válido.")
         saldo_Decimal = Decimal(saldo_inicial)
         self._validar_nao_negativo(saldo_Decimal, "Saldo inicial não pode ser negativo.")
         
@@ -60,7 +69,7 @@ class ContaService:
     def cadastrar_conta_poupanca(self, numero, saldo_inicial):
         self._validar_numero(numero, "O número da conta deve conter apenas dígitos.")
         self._validar_nao_existente(numero)
-        self._validar_numero(saldo_inicial, "O saldo inicial deve ser um valor numérico válido.")
+        self._validar_valor(saldo_inicial, "O saldo inicial deve ser um valor numérico válido.")
         saldo_Decimal = Decimal(saldo_inicial)
         self._validar_nao_negativo(saldo_Decimal, "O saldo inicial não pode ser negativo.")
         
@@ -77,7 +86,7 @@ class ContaService:
 
     def creditar(self, numero, valor):
         conta = self.buscar_conta(numero)
-        self._validar_numero(valor, "O valor de depósito deve ser um valor numérico válido e maior que zero.")
+        self._validar_valor(valor, "O valor de depósito deve ser um valor numérico válido e maior que zero.")
         valor_decimal = Decimal(valor)
         self._validar_valor_positivo(valor_decimal, "O valor de depósito deve ser maior que zero.")
         
@@ -90,7 +99,7 @@ class ContaService:
 
     def debitar(self, numero, valor):
         conta = self.buscar_conta(numero)
-        self._validar_numero(valor, "O valor de saque deve ser um valor numérico válido e maior que zero.")
+        self._validar_valor(valor, "O valor de saque deve ser um valor numérico válido e maior que zero.")
         valor_decimal = Decimal(valor)
         self._validar_valor_positivo(valor_decimal, "O valor de saque deve ser maior que zero.")
         
@@ -106,7 +115,7 @@ class ContaService:
         conta_origem = self.buscar_conta(numero_origem)
         conta_destino = self.buscar_conta(numero_destino)
 
-        self._validar_numero(valor, "O valor de transferência deve ser um valor numérico válido e maior que zero.")
+        self._validar_valor(valor, "O valor de transferência deve ser um valor numérico válido e maior que zero.")
         valor_decimal = Decimal(valor)
         self._validar_valor_positivo(valor_decimal, "O valor de transferência deve ser maior que zero.")
         
