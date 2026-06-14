@@ -18,6 +18,21 @@ def service(repository):
     return ContaService(repository)
 
 
+@pytest.fixture
+def conta_normal(service):
+    return service.cadastrar_conta("1", Decimal("100"))
+
+
+@pytest.fixture
+def conta_bonus(service):
+    return service.cadastrar_conta_bonus("2")
+
+
+@pytest.fixture
+def conta_poupanca(service):
+    return service.cadastrar_conta_poupanca("3", Decimal("200"))
+
+
 class TestCadastrarConta:
     def test_cadastrar_conta_normal_com_sucesso(self, service):
         conta = service.cadastrar_conta("1", Decimal("100"))
@@ -29,15 +44,15 @@ class TestCadastrarConta:
         with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
             service.cadastrar_conta("2")
 
-    def test_cadastrar_conta_normal_com_numero_invalido(self, service):
+    def test_cadastrar_conta_normal_numero_invalido(self, service):
         with pytest.raises(ValueError, match="deve conter apenas dígitos"):
             service.cadastrar_conta("abc", Decimal("100"))
 
-    def test_cadastrar_conta_normal_com_numero_vazio(self, service):
+    def test_cadastrar_conta_normal_numero_vazio(self, service):
         with pytest.raises(ValueError, match="deve conter apenas dígitos"):
             service.cadastrar_conta("", Decimal("100"))
 
-    def test_cadastrar_conta_normal_com_numero_duplicado(self, service):
+    def test_cadastrar_conta_normal_numero_duplicado(self, service):
         service.cadastrar_conta("3", Decimal("100"))
         with pytest.raises(ValueError, match="Já existe uma conta cadastrada"):
             service.cadastrar_conta("3", Decimal("200"))
@@ -70,20 +85,8 @@ class TestCadastrarContaBonus:
     def test_cadastrar_conta_bonus_numero_duplicado(self, service):
         service.cadastrar_conta_bonus("2")
         with pytest.raises(ValueError, match="Já existe uma conta cadastrada"):
-            service.cadastrar_conta_bonus("2")
-
-    def test_cadastrar_conta_bonus_sem_saldo(self, service):
-        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
-            service.cadastrar_conta_poupanca("3", "0")
-    
-    def test_cadastrar_conta_bonus_saldo_negativo(self, service):
-        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
-            service.cadastrar_conta_poupanca("4", Decimal("-1"))
-
-    def test_cadastrar_conta_bonus_saldo_invalido(self, service):
-        with pytest.raises(ValueError, match="deve ser um valor numérico"):
-            service.cadastrar_conta_poupanca("5", "xyz")
-
+            service.cadastrar_conta_bonus("2")   
+            
 
 class TestCadastrarContaPoupanca:
     def test_cadastrar_conta_poupanca_com_sucesso(self, service):
@@ -92,7 +95,7 @@ class TestCadastrarContaPoupanca:
         assert conta.numero == "1"
         assert conta.saldo == Decimal("200")
 
-    def test_cadastrar_conta_poupanca_sem_saldo(self, service):
+    def test_cadastrar_conta_poupanca_saldo_zero(self, service):
         with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
             service.cadastrar_conta_poupanca("2", "0")
 
@@ -112,3 +115,34 @@ class TestCadastrarContaPoupanca:
     def test_cadastrar_conta_poupanca_saldo_invalido(self, service):
         with pytest.raises(ValueError, match="deve ser um valor numérico"):
             service.cadastrar_conta_poupanca("5", "xyz")
+
+
+class TestBuscarConta:
+    def test_buscar_conta_normal(self, service, conta_normal):
+        conta = service.buscar_conta("1")
+        assert isinstance(conta, Conta)
+        assert conta.numero == "1"
+
+    def test_buscar_conta_bonus(self, service, conta_bonus):
+        conta = service.buscar_conta("2")
+        assert isinstance(conta, ContaBonus)
+        assert conta.numero == "2"
+
+    def test_buscar_conta_poupanca(self, service, conta_poupanca):
+        conta = service.buscar_conta("3")
+        assert isinstance(conta, ContaPoupanca)
+        assert conta.numero == "3"
+
+    def test_buscar_conta_inexistente(self, service):
+        with pytest.raises(ValueError, match="Não existe conta cadastrada"):
+            service.buscar_conta("999")
+
+    def test_buscar_conta_numero_invalido(self, service):
+        with pytest.raises(ValueError, match="deve conter apenas dígitos"):
+            service.buscar_conta("abc")
+
+    def test_buscar_conta_numero_vazio(self, service):
+        with pytest.raises(ValueError, match="deve conter apenas dígitos"):
+            service.buscar_conta("")
+
+
