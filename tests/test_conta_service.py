@@ -146,3 +146,21 @@ class TestBuscarConta:
             service.buscar_conta("")
 
 
+class TestConsultarSaldo:
+    def test_consultar_saldo_normal(self, service, conta_normal):
+        saldo = service.consultar_saldo("1")
+        assert saldo == Decimal("100")
+
+    def test_consultar_saldo_bonus(self, service, conta_bonus):
+        saldo = service.consultar_saldo("2")
+        assert saldo == Decimal("0")
+
+    def test_consultar_saldo_poupanca(self, service, conta_poupanca):
+        saldo = service.consultar_saldo("3")
+        assert saldo == Decimal("200")
+
+    def test_consultar_saldo_inexistente(self, service):
+        with pytest.raises(ValueError, match="Não existe conta cadastrada"):
+            service.consultar_saldo("999")
+
+
