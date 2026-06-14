@@ -6,6 +6,7 @@ from models.conta_bonus import ContaBonus
 from models.conta_poupanca import ContaPoupanca
 from repositories.conta_repository import ContaRepository
 from services.conta_service import ContaService
+from services.conta_poupanca_service import ContaPoupancaService
 
 
 @pytest.fixture
@@ -264,3 +265,42 @@ class TestTransferir:
         assert conta.pontuacao == 12
 
 
+class TestRenderJuros:
+    def test_render_juros_todas_as_poupancas(self, service, repository):
+        poupanca_service = ContaPoupancaService(repository)
+        service.cadastrar_conta_poupanca("10", Decimal("1000"))
+        service.cadastrar_conta_poupanca("11", Decimal("2000"))
+        qtd = poupanca_service.render_juros_todas("10")
+        assert qtd == 2
+        assert service.consultar_saldo("10") == Decimal("1100")
+        assert service.consultar_saldo("11") == Decimal("2200")
+
+    def test_render_juros_apenas_poupanca(self, service, repository):
+        poupanca_service = ContaPoupancaService(repository)
+        service.cadastrar_conta("12", Decimal("1000"))
+        service.cadastrar_conta_poupanca("13", Decimal("1000"))
+        qtd = poupanca_service.render_juros_todas("10")
+        assert qtd == 1
+        assert service.consultar_saldo("12") == Decimal("1000")
+        assert service.consultar_saldo("13") == Decimal("1100")
+
+    def test_render_juros_sem_poupanca(self, service, repository):
+        poupanca_service = ContaPoupancaService(repository)
+        service.cadastrar_conta("14", Decimal("1000"))
+        qtd = poupanca_service.render_juros_todas("10")
+        assert qtd == 0
+
+    def test_render_juros_taxa_invalida(self, service, repository):
+        poupanca_service = ContaPoupancaService(repository)
+        with pytest.raises(ValueError, match="deve ser um valor numérico"):
+            poupanca_service.render_juros_todas("abc")
+
+    def test_render_juros_taxa_zero(self, service, repository):
+        poupanca_service = ContaPoupancaService(repository)
+        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
+            poupanca_service.render_juros_todas("0")
+
+    def test_render_juros_taxa_negativa(self, service, repository):
+        poupanca_service = ContaPoupancaService(repository)
+        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
+            poupanca_service.render_juros_todas("-5")
