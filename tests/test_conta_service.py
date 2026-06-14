@@ -195,3 +195,33 @@ class TestCreditar:
         assert conta.pontuacao == 12
 
 
+class TestDebitar:
+    def test_debitar_conta_normal_com_sucesso(self, service, conta_normal):
+        saldo = service.debitar("1", "30")
+        assert saldo == Decimal("70")
+
+    def test_debitar_conta_poupanca_com_sucesso(self, service, conta_poupanca):
+        saldo = service.debitar("3", "50")
+        assert saldo == Decimal("150")
+
+    def test_debitar_valor_negativo(self, service, conta_normal):
+        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
+            service.debitar("1", "-50")
+
+    def test_debitar_valor_zero(self, service, conta_normal):
+        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
+            service.debitar("1", "0")
+
+    def test_debitar_valor_invalido(self, service, conta_normal):
+        with pytest.raises(ValueError, match="deve ser um valor numérico"):
+            service.debitar("1", "abc")
+
+    def test_debitar_conta_inexistente(self, service):
+        with pytest.raises(ValueError, match="Não existe conta cadastrada"):
+            service.debitar("999", "100")
+
+    def test_debitar_saldo_insuficiente(self, service, conta_normal):
+        with pytest.raises(ValueError, match="Saldo insuficiente"):
+            service.debitar("1", "200")
+
+
