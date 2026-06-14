@@ -164,3 +164,34 @@ class TestConsultarSaldo:
             service.consultar_saldo("999")
 
 
+class TestCreditar:
+    def test_creditar_conta_normal_com_sucesso(self, service, conta_normal):
+        saldo = service.creditar("1", "200")
+        assert saldo == Decimal("300")
+
+    def test_creditar_conta_poupanca_com_sucesso(self, service, conta_poupanca):
+        saldo = service.creditar("3", "50")
+        assert saldo == Decimal("250")
+
+    def test_creditar_valor_negativo(self, service, conta_normal):
+        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
+            service.creditar("1", "-50")
+
+    def test_creditar_valor_zero(self, service, conta_normal):
+        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
+            service.creditar("1", "0")
+
+    def test_creditar_valor_invalido(self, service, conta_normal):
+        with pytest.raises(ValueError, match="deve ser um valor numérico"):
+            service.creditar("1", "abc")
+
+    def test_creditar_conta_inexistente(self, service):
+        with pytest.raises(ValueError, match="Não existe conta cadastrada"):
+            service.creditar("999", "100")
+
+    def test_creditar_bonus_pontuacao_aumenta(self, service, conta_bonus):
+        service.creditar("2", "300")
+        conta = service.buscar_conta("2")
+        assert conta.pontuacao == 12
+
+
