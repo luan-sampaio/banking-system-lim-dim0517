@@ -225,3 +225,42 @@ class TestDebitar:
             service.debitar("1", "200")
 
 
+class TestTransferir:
+    def test_transferir_entre_contas_normais(self, service):
+        service.cadastrar_conta("10", Decimal("500"))
+        service.cadastrar_conta("11", Decimal("100"))
+        saldo_destino = service.transferir("10", "11", "200")
+        assert saldo_destino == Decimal("300")
+        assert service.consultar_saldo("10") == Decimal("300")
+
+    def test_transferir_valor_negativo(self, service):
+        service.cadastrar_conta("12", Decimal("500"))
+        service.cadastrar_conta("13", Decimal("100"))
+        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
+            service.transferir("12", "13", "-50")
+
+    def test_transferir_valor_zero(self, service):
+        service.cadastrar_conta("14", Decimal("500"))
+        service.cadastrar_conta("15", Decimal("100"))
+        with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
+            service.transferir("14", "15", "0")
+
+    def test_transferir_saldo_insuficiente(self, service):
+        service.cadastrar_conta("16", Decimal("50"))
+        service.cadastrar_conta("17", Decimal("100"))
+        with pytest.raises(ValueError, match="Saldo insuficiente"):
+            service.transferir("16", "17", "100")
+
+    def test_transferir_conta_origem_inexistente(self, service):
+        service.cadastrar_conta("18", Decimal("100"))
+        with pytest.raises(ValueError, match="Não existe conta cadastrada"):
+            service.transferir("999", "18", "50")
+
+    def test_transferir_bonus_pontuacao_destino(self, service):
+        service.cadastrar_conta("19", Decimal("500"))
+        service.cadastrar_conta_bonus("20")
+        service.transferir("19", "20", "400")
+        conta = service.buscar_conta("20")
+        assert conta.pontuacao == 12
+
+
