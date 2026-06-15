@@ -124,6 +124,9 @@ class ContaService:
         
         conta_origem.saldo -= valor_decimal
         conta_destino.saldo += valor_decimal
+
+        if isinstance(conta_destino, ContaBonus):
+            conta_destino.pontuacao += int(valor_decimal // Decimal("200"))
         
         if isinstance(conta_destino, ContaBonus):
             conta_destino.pontuacao += int(valor_decimal // Decimal("200"))
