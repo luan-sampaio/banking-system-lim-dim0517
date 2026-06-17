@@ -3,7 +3,7 @@ name: Integração Contínua - Banking System L.I.M.
 # REQUISITO: Todo push na branch develop (ou aceitação de PR) deve iniciar o pipeline
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "feature/50-ci-pipeline" ]
   pull_request:
     branches: [ "main" ]
 
