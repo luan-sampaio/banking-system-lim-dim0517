@@ -1,0 +1,55 @@
+name: Integração Contínua - Banking System L.I.M.
+
+# REQUISITO: Todo push na branch develop (ou aceitação de PR) deve iniciar o pipeline
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Permissão necessária para criar a Tag no repositório ao final do processo
+permissions:
+  contents: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Prepara a máquina baixando o código do repositório
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Prepara o ambiente Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      # REQUISITO 1: Resolver as dependências do projeto
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8 # Adicionado para a checagem sintática
+
+      # REQUISITO 2: Buildar o sistema (checagem sintática em Python)
+      - name: Build / Checagem Sintática
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # REQUISITO 3: Executar testes unitários
+      - name: Executar Pytest
+        run: |
+          pytest tests/ -v
+
+      # REQUISITO 4: Estabelecer uma tag com o nome build-XXX
+      - name: Criar e fazer Push da Tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          TAG_NAME="build-${{ github.run_number }}"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git tag -a $TAG_NAME -m "Build automático da integração contínua - Número ${{ github.run_number }}"
+          git push origin $TAG_NAME
