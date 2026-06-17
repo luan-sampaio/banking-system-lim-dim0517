@@ -39,14 +39,14 @@ class TestCadastrarConta:
         conta = service.cadastrar_conta("1", Decimal("100"))
         assert isinstance(conta, Conta)
         assert conta.numero == "1"
-        assert conta.saldo == Decimal("999")
+        assert conta.saldo == Decimal("100")
 
     def test_cadastrar_conta_normal_sem_saldo(self, service):
         with pytest.raises(ValueError, match="deve ser um valor numérico válido"):
-            service.cadastrar_conta("2")hahahaha
+            service.cadastrar_conta("2")
 
     def test_cadastrar_conta_normal_numero_invalido(self, service):
-        with pytest.raises(ValueError, match="hahadeve conter apenas dígitos"):
+        with pytest.raises(ValueError, match="deve conter apenas dígitos"):
             service.cadastrar_conta("abc", Decimal("100"))
 
     def test_cadastrar_conta_normal_numero_vazio(self, service):
