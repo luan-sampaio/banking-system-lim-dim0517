@@ -40,7 +40,8 @@ jobs:
     if: |
       github.event.action == 'closed' &&
       github.event.pull_request.merged == true &&
-      github.event.pull_request.head.ref == 'main'
+      (github.event.pull_request.head.ref == 'main' ||
+       startsWith(github.event.pull_request.head.ref, 'bugfix'))
     runs-on: ubuntu-latest
 
     steps:
@@ -69,18 +70,41 @@ jobs:
         run: |
           pytest tests/ -v
 
-      - name: Determinar nova tag rc-X.Y
+      - name: Determinar nova tag
         id: tag
         run: |
           git fetch --tags
-          MAX_TAG=$(git tag --list 'rc-*' | grep -E '^rc-[0-9]+\.[0-9]+$' | sort -t. -k1,1n -k2,2n | tail -1)
-          if [ -z "$MAX_TAG" ]; then
-            NEW_TAG="rc-1.0"
-          else
-            X=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f1)
-            Y=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f2)
-            Y=$((Y + 1))
-            NEW_TAG="rc-$X.$Y"
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+
+          if [ "$BRANCH" = "main" ]; then
+            MAX_TAG=$(git tag --list 'rc-*' | grep -E '^rc-[0-9]+\.[0-9]+$' | sort -t. -k1,1n -k2,2n | tail -1)
+            if [ -z "$MAX_TAG" ]; then
+              NEW_TAG="rc-1.0"
+            else
+              X=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f1)
+              Y=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f2)
+              Y=$((Y + 1))
+              NEW_TAG="rc-$X.$Y"
+            fi
+          elif [[ "$BRANCH" == bugfix* ]]; then
+            THREE_SEG=$(git tag --list 'rc-*' | grep -E '^rc-[0-9]+\.[0-9]+\.[0-9]+$')
+            if [ -n "$THREE_SEG" ]; then
+              MAX_TAG=$(echo "$THREE_SEG" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)
+              X=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f1)
+              Y=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f2)
+              Z=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f3)
+              Z=$((Z + 1))
+              NEW_TAG="rc-$X.$Y.$Z"
+            else
+              TWO_SEG=$(git tag --list 'rc-*' | grep -E '^rc-[0-9]+\.[0-9]+$' | sort -t. -k1,1n -k2,2n | tail -1)
+              if [ -z "$TWO_SEG" ]; then
+                NEW_TAG="rc-1.0.1"
+              else
+                X=$(echo "$TWO_SEG" | sed 's/^rc-//' | cut -d. -f1)
+                Y=$(echo "$TWO_SEG" | sed 's/^rc-//' | cut -d. -f2)
+                NEW_TAG="rc-$X.$Y.1"
+              fi
+            fi
           fi
           echo "tag_name=$NEW_TAG" >> $GITHUB_OUTPUT
 
