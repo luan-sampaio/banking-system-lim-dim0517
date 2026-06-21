@@ -109,9 +109,6 @@ class ContaController:
 
             return mensagem
 
-        try:
-            quantidade = self.conta_poupanca_service.render_juros_todas(taxa)
-            return f"         Juros aplicados em {quantidade} conta(s) poupança."
         except ValueError as erro:
             return f"\n         Erro: {erro}"
 
