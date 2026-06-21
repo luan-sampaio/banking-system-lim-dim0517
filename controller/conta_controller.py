@@ -131,7 +131,7 @@ class ContaController:
         try:
             dados_conta = self.conta_service.consultar_dados(numero)
             os.system("cls" if os.name == "nt" else "clear")
-            print("========== Banking Sytem L.I.M. ==========\n")
+            print("========== Banking System L.I.M. ==========\n")
 
             return (
                 "         Dados da conta: \n\n"
