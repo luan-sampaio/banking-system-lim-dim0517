@@ -84,7 +84,7 @@ class ContaController:
             valor = self._parse_decimal(valor_str)
 
             saldo = self.conta_service.debitar(numero, valor)
-            return f"         Saldo de {numero}: {saldo:.2f}"
+            return f"         Débito realizado. Saldo de {numero}: {saldo:.2f}"
 
         except ValueError as erro:
             return f"\n         Erro: {erro}"
