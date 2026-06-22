@@ -87,23 +87,15 @@ jobs:
               NEW_TAG="rc-$X.$Y"
             fi
           elif [[ "$BRANCH" == bugfix* ]]; then
-            THREE_SEG=$(git tag --list 'rc-*' | grep -E '^rc-[0-9]+\.[0-9]+\.[0-9]+$')
-            if [ -n "$THREE_SEG" ]; then
-              MAX_TAG=$(echo "$THREE_SEG" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)
-              X=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f1)
-              Y=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f2)
-              Z=$(echo "$MAX_TAG" | sed 's/^rc-//' | cut -d. -f3)
-              Z=$((Z + 1))
-              NEW_TAG="rc-$X.$Y.$Z"
+            HIGHEST_XY=$(git tag --list 'rc-*' | grep -E '^rc-[0-9]+\.[0-9]+' | sed 's/^rc-//' | sed 's/\.[0-9]*$//' | sort -t. -k1,1n -k2,2n | tail -1)
+            if [ -z "$HIGHEST_XY" ]; then
+              NEW_TAG="rc-1.0.1"
             else
-              TWO_SEG=$(git tag --list 'rc-*' | grep -E '^rc-[0-9]+\.[0-9]+$' | sort -t. -k1,1n -k2,2n | tail -1)
-              if [ -z "$TWO_SEG" ]; then
-                NEW_TAG="rc-1.0.1"
-              else
-                X=$(echo "$TWO_SEG" | sed 's/^rc-//' | cut -d. -f1)
-                Y=$(echo "$TWO_SEG" | sed 's/^rc-//' | cut -d. -f2)
-                NEW_TAG="rc-$X.$Y.1"
-              fi
+              X=$(echo "$HIGHEST_XY" | cut -d. -f1)
+              Y=$(echo "$HIGHEST_XY" | cut -d. -f2)
+              MAX_Z=$(git tag --list "rc-$X.$Y.*" | sed "s/^rc-$X.$Y.//" | sort -n | tail -1)
+              Z=$((MAX_Z + 1))
+              NEW_TAG="rc-$X.$Y.$Z"
             fi
           fi
           echo "tag_name=$NEW_TAG" >> $GITHUB_OUTPUT
