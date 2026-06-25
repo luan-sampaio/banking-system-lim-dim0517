@@ -1,14 +1,11 @@
-name: Integração Contínua (Build) - L.I.M.
+name: Validação de Pull Request da Branch Main - L.I.M.
 
 on:
-  push:
+  pull_request:
     branches: [ "main" ]
 
-permissions:
-  contents: write
-
 jobs:
-  build-and-tag:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,12 +31,3 @@ jobs:
       - name: Executar Pytest
         run: |
           pytest tests/ -v
-
-      - name: Criar e fazer Push da Tag
-        run: |
-          # O github.run_number agora será sequencial e contínuo
-          TAG_NAME="build-${{ github.run_number }}"
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
-          git tag -a $TAG_NAME -m "Build automático da integração contínua - Número ${{ github.run_number }}"
-          git push origin $TAG_NAME
