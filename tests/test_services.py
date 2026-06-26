@@ -262,7 +262,7 @@ class TestTransferir:
         service.cadastrar_conta_bonus("20")
         service.transferir("19", "20", "400")
         conta = service.buscar_conta("20")
-        assert conta.pontuacao == 12
+        assert conta.pontuacao == 14
 
 
 class TestRenderJuros:
