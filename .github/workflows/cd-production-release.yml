@@ -1,0 +1,90 @@
+name: Liberação de Produção (Release & Deploy) - L.I.M.
+
+on:
+  pull_request:
+    branches: [ "production" ]
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  release-and-publish:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: production
+
+      - name: Determinar nova tag
+        id: tag
+        run: |
+          git fetch --tags
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          
+          # Busca a maior tag rel-X.Y existente
+          BASE_TAG=$(git tag --list 'rel-*' | grep -E '^rel-[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          
+          if [ -z "$BASE_TAG" ]; then
+            X=1
+            Y=0
+          else
+            X=$(echo "$BASE_TAG" | cut -d- -f2 | cut -d. -f1)
+            Y=$(echo "$BASE_TAG" | cut -d- -f2 | cut -d. -f2)
+          fi
+
+          if [ "$BRANCH" = "staging" ]; then
+            Y=$((Y + 1))
+            NEW_TAG="rel-$X.$Y"
+          
+          elif [[ "$BRANCH" == hotfix* ]]; then
+            MAX_Z=$(git tag --list "rel-$X.$Y.*" | sort -V | tail -1 | cut -d. -f3)
+            
+            if [ -z "$MAX_Z" ]; then
+              NEW_TAG="rel-$X.$Y.1"
+            else
+              NEW_TAG="rel-$X.$Y.$((MAX_Z + 1))"
+            fi
+          else
+            echo "Branch de origem inválida para produção."
+            exit 1
+          fi
+          
+          echo "tag_name=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - name: Criar e fazer Push da Tag
+        run: |
+          TAG_NAME="${{ steps.tag.outputs.tag_name }}"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git tag -a "$TAG_NAME" -m "Release Produção $TAG_NAME"
+          git push origin "$TAG_NAME"
+
+      - name: Gerar pacote do sistema
+        run: |
+          TAG_NAME="${{ steps.tag.outputs.tag_name }}"
+          git archive --format=zip --output="${TAG_NAME}.zip" "$TAG_NAME"
+
+      - name: Upload do Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.tag.outputs.tag_name }}
+          path: "*.zip"
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construir e Publicar Imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/banking-system-lim:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/banking-system-lim:${{ steps.tag.outputs.tag_name }}
