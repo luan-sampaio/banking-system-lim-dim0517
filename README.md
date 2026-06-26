@@ -111,16 +111,29 @@ Após a execução, o sistema exibirá um menu no terminal com as opções dispo
 ### Executar via API REST
 
 ```bash
-uvicorn api.app:app --reload
+uvicorn api.app:app --reload --port 8080
 ```
 
-A API ficará disponível em `http://127.0.0.1:8000`. A documentação interativa (Swagger) pode ser acessada em `http://127.0.0.1:8000/docs`.
+A API ficará disponível em `http://127.0.0.1:8080`. A documentação interativa (Swagger) pode ser acessada em `http://127.0.0.1:8080/docs`.
 
 ### Executar os Testes
 
 ```bash
 pytest tests/ -v
 ```
+
+### 🐳 Executar via Docker (Produção)
+
+A imagem oficial do sistema é gerada e publicada automaticamente através da nossa esteira de Entrega Contínua (CD). Para baixar e executar o container, certifique-se de ter o Docker instalado e utilize os comandos abaixo:
+
+```bash
+docker pull marcusaurelius33/banking-system-lim-dim0517:latest
+
+docker run -d -p 8080:8080 marcusaurelius33/banking-system-lim-dim0517:latest
+```
+Após a execução, a API conteinerizada responderá em http://127.0.0.1:8080.
+
+🔗 Link Direto para a Imagem: Acessar o repositório no Docker Hub - marcusaurelius33/banking-system-lim-dim0517
 
 ---
 
