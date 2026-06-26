@@ -108,6 +108,9 @@ class ContaController:
                 mensagem += f"\n         Pontuação da conta de destino: {conta_destino.pontuacao}"
 
             return mensagem
+         
+        except ValueError as erro:
+            return f"\n         Erro: {erro}"
 
         try:
             quantidade = self.conta_poupanca_service.render_juros_todas(taxa)
