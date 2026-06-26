@@ -112,12 +112,6 @@ class ContaController:
         except ValueError as erro:
             return f"\n         Erro: {erro}"
 
-        try:
-            quantidade = self.conta_poupanca_service.render_juros_todas(taxa)
-            return f"         Juros aplicados em {quantidade} conta(s) poupança."
-        except ValueError as erro:
-            return f"\n         Erro: {erro}"
-
     def render_juros(self):
         taxa_str = input("         Taxa de juros: ")
 
