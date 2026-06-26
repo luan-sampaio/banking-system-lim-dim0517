@@ -86,5 +86,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/banking-system-lim:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/banking-system-lim:${{ steps.tag.outputs.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/banking-system-lim-dim0517:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/banking-system-lim-dim0517:${{ steps.tag.outputs.tag_name }}
+            
