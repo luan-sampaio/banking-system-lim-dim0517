@@ -128,6 +128,9 @@ class ContaService:
         if isinstance(conta_destino, ContaBonus):
             conta_destino.pontuacao += int(valor_decimal // Decimal("200"))
         
+        if isinstance(conta_destino, ContaBonus):
+            conta_destino.pontuacao += int(valor_decimal // Decimal("200"))
+        
         self.conta_repository.salvar_contas(conta_origem)
         self.conta_repository.salvar_contas(conta_destino)
         
