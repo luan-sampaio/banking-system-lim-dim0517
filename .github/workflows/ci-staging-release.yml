@@ -1,0 +1,75 @@
+name: Liberação de Staging (Release) - L.I.M.
+
+on:
+  pull_request:
+    branches: [ "staging" ]
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  stabilize-and-release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: staging
+
+      - name: Determinar nova tag
+        id: tag
+        run: |
+          git fetch --tags
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          
+          # Busca a maior tag rc-X.Y existente no repositório
+          BASE_TAG=$(git tag --list 'rc-*' | grep -E '^rc-[0-9]+\.[0-9]+' | sort -V | tail -1)
+          
+          if [ -z "$BASE_TAG" ]; then
+            X=1
+            Y=0
+          else
+            X=$(echo "$BASE_TAG" | cut -d- -f2 | cut -d. -f1)
+            Y=$(echo "$BASE_TAG" | cut -d- -f2 | cut -d. -f2)
+          fi
+
+          if [ "$BRANCH" = "main" ]; then
+            Y=$((Y + 1))
+            NEW_TAG="rc-$X.$Y"
+          
+          elif [[ "$BRANCH" == bugfix* ]]; then
+            MAX_Z=$(git tag --list "rc-$X.$Y.*" | sort -V | tail -1 | cut -d. -f3)
+            
+            if [ -z "$MAX_Z" ]; then
+              NEW_TAG="rc-$X.$Y.1"
+            else
+              NEW_TAG="rc-$X.$Y.$((MAX_Z + 1))"
+            fi
+          else
+            echo "Branch de origem não reconhecida para regras de tag."
+            exit 1
+          fi
+          
+          echo "tag_name=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - name: Criar e fazer Push da Tag
+        run: |
+          TAG_NAME="${{ steps.tag.outputs.tag_name }}"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git tag -a "$TAG_NAME" -m "Release Candidate $TAG_NAME"
+          git push origin "$TAG_NAME"
+
+      - name: Gerar pacote da versão
+        run: |
+          TAG_NAME="${{ steps.tag.outputs.tag_name }}"
+          git archive --format=zip --output="${TAG_NAME}.zip" "$TAG_NAME"
+
+      - name: Upload do Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.tag.outputs.tag_name }}
+          path: "*.zip"

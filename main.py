@@ -15,7 +15,7 @@ controller = ContaController(service, conta_poupanca_service)
 def main():
     while True:
         os.system("cls" if os.name == "nt" else "clear")
-        print("========== Banking Sytem L.I.M. ==========\n")
+        print("========== Banking System L.I.M. ==========\n")
         print("         [1] Cadastrar uma conta")
         print("         [2] Consultar Saldo")
         print("         [3] Adicionar Crédito")
@@ -59,7 +59,7 @@ def main():
 
 def tela_contas():
     os.system("cls" if os.name == "nt" else "clear")
-    print("========== Banking Sytem L.I.M. ==========\n")
+    print("========== Banking System L.I.M. ==========\n")
     print("         Escolha o tipo de conta: \n")
     print("         [A] Conta Normal")
     print("         [B] Conta Bônus")

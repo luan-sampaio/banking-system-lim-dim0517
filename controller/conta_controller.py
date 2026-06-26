@@ -84,7 +84,7 @@ class ContaController:
             valor = self._parse_decimal(valor_str)
 
             saldo = self.conta_service.debitar(numero, valor)
-            return f"         Saldo de {numero}: {saldo:.2f}"
+            return f"         Débito realizado. Saldo de {numero}: {saldo:.2f}"
 
         except ValueError as erro:
             return f"\n         Erro: {erro}"
@@ -108,10 +108,7 @@ class ContaController:
                 mensagem += f"\n         Pontuação da conta de destino: {conta_destino.pontuacao}"
 
             return mensagem
-
-        try:
-            quantidade = self.conta_poupanca_service.render_juros_todas(taxa)
-            return f"         Juros aplicados em {quantidade} conta(s) poupança."
+         
         except ValueError as erro:
             return f"\n         Erro: {erro}"
 
@@ -131,7 +128,7 @@ class ContaController:
         try:
             dados_conta = self.conta_service.consultar_dados(numero)
             os.system("cls" if os.name == "nt" else "clear")
-            print("========== Banking Sytem L.I.M. ==========\n")
+            print("========== Banking System L.I.M. ==========\n")
 
             return (
                 "         Dados da conta: \n\n"
