@@ -22,7 +22,7 @@ jobs:
         run: |
           TITLE="${{ github.event.pull_request.title }}"
 
-          PATTERN='^#[0-9]+ - .+'
+          PATTERN='^\s*#[0-9]+ - .+'
 
           if ! echo "$TITLE" | grep -qE "$PATTERN"; then
             echo "❌ ERRO: O título do PR deve seguir o formato: #NUM_ISSUE - MENSAGEM"
@@ -30,7 +30,7 @@ jobs:
             exit 1
           fi
 
-          ISSUE_NUM=$(echo "$TITLE" | sed -nE 's/^#([0-9]+) - .+$/\1/p')
+          ISSUE_NUM=$(echo "$TITLE" | sed -nE 's/^\s*#([0-9]+) - .+$/\1/p')
 
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Bearer $GH_TOKEN" \

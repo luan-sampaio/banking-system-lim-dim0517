@@ -3,7 +3,7 @@
 REPO="luan-sampaio/banking-system-lim-dim0517"
 MESSAGE=$(cat "$1")
 
-PATTERN='^#([0-9]+) - (.+)$'
+PATTERN='^\s*#([0-9]+) - (.+)$'
 
 if ! echo "$MESSAGE" | grep -qE "$PATTERN"; then
     echo "ERRO: A mensagem do commit deve seguir o formato: #NUM_ISSUE - MENSAGEM"
@@ -11,7 +11,7 @@ if ! echo "$MESSAGE" | grep -qE "$PATTERN"; then
     exit 1
 fi
 
-ISSUE_NUM=$(echo "$MESSAGE" | sed -nE "s/$PATTERN/\1/p")
+ISSUE_NUM=$(echo "$MESSAGE" | sed -nE 's/^\s*#([0-9]+) - .+$/\1/p')
 
 HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
     "https://api.github.com/repos/$REPO/issues/$ISSUE_NUM")
