@@ -1,0 +1,44 @@
+name: Validação de Commit no PR - L.I.M.
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  issues: read
+  pull-requests: write
+
+jobs:
+  validate-commit-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Validar título do PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+
+          PATTERN='^\s*#[0-9]+ - .+'
+
+          if ! echo "$TITLE" | grep -qE "$PATTERN"; then
+            echo "❌ ERRO: O título do PR deve seguir o formato: #NUM_ISSUE - MENSAGEM"
+            echo "Exemplo: #1 - Exemplo do título correto"
+            exit 1
+          fi
+
+          ISSUE_NUM=$(echo "$TITLE" | sed -nE 's/^\s*#([0-9]+) - .+$/\1/p')
+
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUM")
+
+          if [ "$HTTP_STATUS" = "404" ]; then
+            echo "❌ ERRO: Issue #$ISSUE_NUM não encontrada no repositório"
+            exit 1
+          fi
+
+          echo "✅ Título do PR válido! Issue #$ISSUE_NUM encontrada."

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+REPO="luan-sampaio/banking-system-lim-dim0517"
+MESSAGE=$(cat "$1")
+
+PATTERN='^\s*#([0-9]+) - (.+)$'
+
+if ! echo "$MESSAGE" | grep -qE "$PATTERN"; then
+    echo "ERRO: A mensagem do commit deve seguir o formato: #NUM_ISSUE - MENSAGEM"
+    echo "Exemplo: #1 - Exemplo do commit correto"
+    exit 1
+fi
+
+ISSUE_NUM=$(echo "$MESSAGE" | sed -nE 's/^\s*#([0-9]+) - .+$/\1/p')
+
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+    "https://api.github.com/repos/$REPO/issues/$ISSUE_NUM")
+
+if [ "$HTTP_STATUS" = "404" ]; then
+    echo "ERRO: Issue #$ISSUE_NUM não encontrada no repositório $REPO"
+    exit 1
+fi
