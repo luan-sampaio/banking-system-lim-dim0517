@@ -1,0 +1,11 @@
+#!/bin/sh
+
+MESSAGE=$(cat "$1")
+
+PATTERN='^#[0-9]+ - .+'
+
+if ! echo "$MESSAGE" | grep -qE "$PATTERN"; then
+    echo "ERRO: A mensagem do commit deve seguir o formato: #NUM_ISSUE - MENSAGEM"
+    echo "Exemplo: #1 - Exemplo do commit correto"
+    exit 1
+fi
