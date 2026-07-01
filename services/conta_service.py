@@ -122,7 +122,7 @@ class ContaService:
         if valor_decimal > conta_origem.saldo:
             raise ValueError("Saldo insuficiente para esta operação.")
         
-        conta_origem.saldo -= valor_decimal
+        conta_origem.saldo = valor_decimal
         conta_destino.saldo += valor_decimal
 
         if isinstance(conta_destino, ContaBonus):
