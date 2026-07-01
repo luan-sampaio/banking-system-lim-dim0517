@@ -112,8 +112,8 @@ class ContaService:
         return conta.saldo
 
     def transferir(self, numero_origem, numero_destino, valor):
-        conta_origem = self.buscar_conta(numero_origem)
         conta_destino = self.buscar_conta(numero_destino)
+        conta_origem = self.buscar_conta(numero_origem)
 
         self._validar_valor(valor, "O valor de transferência deve ser um valor numérico válido e maior que zero.")
         valor_decimal = Decimal(valor)
